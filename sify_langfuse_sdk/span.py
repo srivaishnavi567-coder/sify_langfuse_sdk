@@ -1,33 +1,23 @@
-from typing import Any, Dict
-
-
 class TraceSpan:
     def __init__(self, span):
         self.span = span
 
-    def generation(
-        self,
-        model: str,
-        input: Any,
-        output: Any,
-        usage: Dict[str, Any] | None = None,
-    ):
+    def generation(self, model, input, output, usage=None):
         with self.span.start_as_current_observation(
             as_type="generation",
             name="model-generation",
-            model=model,
-            input=input,
-            output=output,
-            metadata={
-                "usage": usage,
-            },
-        ):
-            pass
+        ) as gen:
+            gen.update(
+                model=model,
+                input=input,
+                output=output,
+                metadata={"usage": usage},
+            )
 
-    def event(self, name: str, metadata: Dict[str, Any]):
+    def event(self, name, metadata):
         with self.span.start_as_current_observation(
             as_type="span",
             name=name,
-            metadata=metadata,
-        ):
-            pass
+        ) as obs:
+            obs.update(metadata=metadata)
+
