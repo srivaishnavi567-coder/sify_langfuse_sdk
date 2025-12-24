@@ -21,7 +21,7 @@ class LangfuseTracer:
             as_type="span",
             name=name,
         ) as root:
-            # attach metadata AFTER creation
+           
             root.update(
                 metadata={
                     "service": self.service_name,
@@ -29,7 +29,7 @@ class LangfuseTracer:
                 }
             )
 
-            # propagate user & session correctly
+            
             with propagate_attributes(
                 user_id=self.user_id,
                 session_id=self.session_id,
