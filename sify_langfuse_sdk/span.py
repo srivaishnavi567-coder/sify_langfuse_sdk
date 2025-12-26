@@ -76,23 +76,20 @@ class TraceSpan:
         cost_details: dict | None = None,
     ):
         """
-        Creates a Langfuse GENERATION observation.
-        Fully compliant with Langfuse docs:
-        - input
-        - output
-        - usage_details
-        - cost_details
+        Langfuse-compliant manual GENERATION.
+        Input MUST be set at creation time.
+        Output & tokens MUST be updated.
         """
 
         with self.root.start_as_current_observation(
             as_type="generation",
             name="model-generation",
             model=model,
-            input=input,
+            input=input,   
         ) as generation:
             generation.update(
-                output=output,
-                usage_details=usage_details,
+                output=output,                     
+                usage_details=usage_details,       
                 cost_details=cost_details,
             )
 
@@ -102,3 +99,4 @@ class TraceSpan:
             name=name,
         ) as span:
             span.update(metadata=metadata)
+
