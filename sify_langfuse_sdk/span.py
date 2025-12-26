@@ -63,9 +63,12 @@
 #             name=name,
 #         ) as span:
 #             span.update(metadata=metadata)
+from langfuse import get_client
+
 class TraceSpan:
     def __init__(self, root_span):
         self.root = root_span
+        self.langfuse = get_client()
 
     def generation(
         self,
@@ -76,20 +79,20 @@ class TraceSpan:
         cost_details: dict | None = None,
     ):
         """
-        Langfuse-compliant manual GENERATION.
-        Input MUST be set at creation time.
-        Output & tokens MUST be updated.
+        This version uses update_current_generation(),
+        which is the ONLY API Langfuse UI reads for IO in manual traces.
         """
 
         with self.root.start_as_current_observation(
             as_type="generation",
             name="model-generation",
             model=model,
-            input=input,   
-        ) as generation:
-            generation.update(
-                output=output,                     
-                usage_details=usage_details,       
+        ):
+            # 🔥 THIS IS THE KEY DIFFERENCE
+            self.langfuse.update_current_generation(
+                input=input,
+                output=output,
+                usage_details=usage_details,
                 cost_details=cost_details,
             )
 
@@ -99,4 +102,3 @@ class TraceSpan:
             name=name,
         ) as span:
             span.update(metadata=metadata)
-
