@@ -74,31 +74,33 @@ class TraceSpan:
         self,
         model: str,
         input,
-        output,
-        usage_details: dict | None = None,
-        cost_details: dict | None = None,
+        model_call,              # 👈 function
+        usage_details_fn=None,   # optional callable
+        cost_details=None,
     ):
         """
-        This version uses update_current_generation(),
-        which is the ONLY API Langfuse UI reads for IO in manual traces.
+        Measures model latency correctly by executing the model
+        INSIDE the generation observation.
         """
 
         with self.root.start_as_current_observation(
             as_type="generation",
             name="model-generation",
             model=model,
+            input=input,
         ):
-            # 🔥 THIS IS THE KEY DIFFERENCE
+            # 🔥 Model execution is now timed
+            output = model_call()
+
+            usage_details = usage_details_fn(output) if usage_details_fn else None
+
             self.langfuse.update_current_generation(
-                input=input,
-                output=output,
+                output={
+                    "role": "assistant",
+                    "content": output,
+                },
                 usage_details=usage_details,
                 cost_details=cost_details,
             )
 
-    def event(self, name: str, metadata: dict):
-        with self.root.start_as_current_observation(
-            as_type="span",
-            name=name,
-        ) as span:
-            span.update(metadata=metadata)
+            return output
