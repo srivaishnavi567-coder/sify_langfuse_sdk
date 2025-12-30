@@ -12,8 +12,10 @@ setup(
     packages=find_packages(exclude=("tests", "examples")),
     python_requires=">=3.9",
     install_requires=[
-        "langfuse>=2.0.0",
-    ],
+       "langfuse>=2.0.0",
+       "python-dotenv>=1.0.0",
+   ],
+
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.9",
